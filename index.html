@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡易データベース</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>データベース管理</h1>
+    <form id="dataForm">
+        <label for="name">名前:</label>
+        <input type="text" id="name" required>
+        <label for="age">年齢:</label>
+        <input type="number" id="age" required>
+        <button type="submit">追加</button>
+    </form>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>名前</th>
+                <th>年齢</th>
+                <th>アクション</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        const form = document.getElementById('dataForm');
+        const tableBody = document.querySelector('#dataTable tbody');
+
+        // ローカルストレージからデータを取得
+        const getData = () => JSON.parse(localStorage.getItem('database')) || [];
+
+        // データをローカルストレージに保存
+        const saveData = (data) => localStorage.setItem('database', JSON.stringify(data));
+
+        // テーブルを更新
+        const renderTable = () => {
+            const data = getData();
+            tableBody.innerHTML = '';
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.age}</td>
+                    <td><button onclick="deleteRow(${index})">削除</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        // データを追加
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+
+            const data = getData();
+            data.push({ name, age });
+            saveData(data);
+
+            form.reset();
+            renderTable();
+        });
+
+        // データを削除
+        const deleteRow = (index) => {
+            const data = getData();
+            data.splice(index, 1);
+            saveData(data);
+            renderTable();
+        };
+
+        // 初期化
+        renderTable();
+    </script>
+</body>
+</html>
